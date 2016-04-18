@@ -34,7 +34,7 @@ MsgClient.prototype = {
 
     var socket;
     if(this.serverURI != null)
-      io.connect(this.serverURI);
+      socket = io.connect(this.serverURI);
     else
       socket = io.connect();
     this.socket = socket;
