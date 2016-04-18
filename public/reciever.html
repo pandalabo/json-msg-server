@@ -17,7 +17,7 @@
         client.messageRecieved = function(msg){
             console.log(msg);
             $("#recieved").append(
-              $("<p/>").append(msg)  
+              $("<p/>").append(JSON.stringify(msg))  
             );
         };
         
