@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1" />
+    <title>JSON Message Broadcaster</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="//code.jquery.com/jquery-2.1.1.js"></script>
+    <script src="client.js"></script>
+  </head>
+  <body>
+    <div id="recieved" />  
+
+    <script> 
+      $(document).ready(function() {        
+        var client = new MsgClient();
+        client.messageRecieved = function(msg){
+            console.log(msg);
+            $("#recieved").append(
+              $("<p/>").append(msg)  
+            );
+        };
+        
+        client.connect();
+      });
+    </script>
+  </body>
+</html>

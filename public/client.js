@@ -18,7 +18,7 @@ var MsgClient = function(){
   this.disconnected = fnEmpty; //function()
   this.loginSuccess = fnEmpty;
   this.loginFailed = fnEmpty;
-  this.MessageRecieved = fnEmpty; //function(msg [, header[, type]])
+  this.messageRecieved = fnEmpty; //function(msg [, header[, type]])
 
 };
 
@@ -93,7 +93,7 @@ MsgClient.prototype = {
 
     //ロビーメッセージを受け取ったら msg={text: message text, username: user name}
     socket.on("push msg", function(msg) {
-      self.MessageRecieved(msg);
+      self.messageRecieved(msg);
     });
 
     //to avoid overloading event
@@ -120,5 +120,5 @@ MsgClient.prototype = {
 //empty method
 var fnEmpty = function(){
   var callerName = fnEmpty.caller != null ? fnEmpty.caller.name : "root";
-  console.log("unhandled event raised, caller name:" + callerName); 
+  //console.log("unhandled event raised, caller name:" + callerName); 
 };

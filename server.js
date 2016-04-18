@@ -38,6 +38,9 @@ var userList = {}; //{id : bool}
 //bind message func to individual socket
 io.sockets.on("connection", function(socket) {
 
+    userList[socket.id] = false;
+    console.log("user: ", Object.keys(userList).length);
+    
   var disconnected = function () {
     
     // delete from userList

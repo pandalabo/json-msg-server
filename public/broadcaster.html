@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1" />
+    <title>JSON Message Broadcaster</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="//code.jquery.com/jquery-2.1.1.js"></script>
+    <script src="client.js"></script>
+  </head>
+  <body>
+    <div>
+        <input id="message" type="text" />  
+        <input id="btn-send" type="button" value="send" />  
+    </div>
+
+    <script> 
+      $(document).ready(function() {
+	    var bindClientEvents = function(client){
+
+            //add events
+            client.messageRecieved = msgRecieved;
+            client.loginSuccess = function(){ console.log("log in success!");};
+            client.loginFailed = function(error){console.log(error);};
+        };
+        
+        var msgRecieved = function(msg){
+            console.log(msg);
+        };
+        
+        var client = new MsgClient();
+        bindClientEvents(client);
+        
+        client.connect();
+        client.login("inputyourpasswordhere");
+        
+        $("#btn-send").click(function(){
+            var msg = $("#message").val();
+           client.send(msg);
+           $("#message").val(""); 
+        });
+      });
+    </script>
+  </body>
+</html>
