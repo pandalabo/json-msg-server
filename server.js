@@ -1,7 +1,5 @@
 var pass_phrase = "inputyourpasswordhere";
 
-var validator= require('validator');
-
 // Setup basic express server
 var express = require('express');
 var app = express();
@@ -9,13 +7,11 @@ var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var port = process.env.PORT || 3000;
 
-//WebSocketサーバーの定義
-io.set('transports', ['websocket', 'polling']); //websocketsに限定する場合に指定。c9.ioではコメントアウト
-//io.set('match origin protocol', true);
-//io.set("log level", 1);
+//WebSocket server definition
+io.set('transports', ['websocket', 'polling']); //websockets only or 
 
 server.listen(port, function () {
-  console.log('Version: ' + process.version);
+  console.log('Node Version: ' + process.version);
   console.log('Server listening at port %d', port);
 });
 
@@ -32,7 +28,7 @@ process.on('SIGTERM', function(){
 // Routing
 app.use(express.static(__dirname + '/public'));
 
-// パスフレーズのみの簡易認証のためのユーザリスト
+// authentication list
 var userList = {}; //{id : bool}
 
 //bind message func to individual socket
@@ -41,7 +37,8 @@ io.sockets.on("connection", function(socket) {
     userList[socket.id] = false;
     console.log("user: ", Object.keys(userList).length);
     
-  var disconnected = function () {
+    //disconnection occurs anywhere
+    var disconnected = function () {
     
     // delete from userList
     delete userList[socket.id];
@@ -49,9 +46,9 @@ io.sockets.on("connection", function(socket) {
     console.log("user: ", Object.keys(userList).length);
   };
   
-  // 接続が途切れたときのイベントリスナを定義
   socket.on("disconnect", disconnected);
 
+  // simple & insecure authentication
   socket.on("password", function (pass){
     if(pass && pass == pass_phrase){
       socket.emit("password accepted", {id:socket.id});
@@ -62,10 +59,9 @@ io.sockets.on("connection", function(socket) {
     socket.emit("password denied");    
   });
 
-  // クライアントからのメッセージ送信を受け取ったとき
+  // only authenticated user may send message
   socket.on("send msg", function(msg) {
-    if(socket.id in userList && msg)
-    {
+    if(socket.id in userList && msg){
       socket.broadcast.emit("push msg", msg);
     }
   });

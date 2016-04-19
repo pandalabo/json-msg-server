@@ -1,5 +1,4 @@
-/* Goita Client Class
-   handles WebSocket messages */
+/* Client Class handles WebSocket messages */
 var MsgClient = function(){
   //private field
   this._eventDefined = false;
@@ -13,12 +12,12 @@ var MsgClient = function(){
   this.userId = null;
 
   //event - inject event handler
-  this.connected = fnEmpty; //function()
-  this.connectFailed = fnEmpty;//function()
-  this.disconnected = fnEmpty; //function()
+  this.connected = fnEmpty;
+  this.connectFailed = fnEmpty;
+  this.disconnected = fnEmpty;
   this.loginSuccess = fnEmpty;
   this.loginFailed = fnEmpty;
-  this.messageRecieved = fnEmpty; //function(msg [, header[, type]])
+  this.messageRecieved = fnEmpty;
 
 };
 
@@ -27,20 +26,20 @@ MsgClient.prototype = {
   
   //connect to server
   connect : function(){
-    //already isConnected
+    //already connected
     if(this.isConnected) return this.socket;
 
     var self = this;  //capture a client instance
 
     var socket;
-    if(this.serverURI != null)
+    if(this.serverURI)
       socket = io.connect(this.serverURI);
     else
       socket = io.connect();
     this.socket = socket;
     
-    //socketが無事取得できていればこの時点で接続確立しているはず。
-    if(socket != undefined && socket != null){
+    //ensure socket.io connetion established
+    if(!socket){
       console.log("got socket-client successfully");
     }
     else{
@@ -48,19 +47,16 @@ MsgClient.prototype = {
       this.connectFailed();
     }
 
-    //for reconnecting, no need to define events again
+    //
     if(this._eventDefined) return socket;
 
     //------------define events ------------------
-    
-    // 接続できたというメッセージを受け取ったら
     socket.on("connect", function() {
       self.isConnected = true;
       console.log("client connected!");
       self.connected();
     });
     
-    //切断した場合
     socket.on('disconnect', function(){
       self.isConnected = false;
       self.userId = null;
@@ -74,7 +70,7 @@ MsgClient.prototype = {
       console.log("happened error: " + error);
     });
 
-    // ロビーに入ったというメッセージを受け取ったら
+    //authentication success
     socket.on("password accepted", function(data){
       console.log("password accepted");
       socket.id = data.id; //特に使う場面がないが一応
@@ -83,7 +79,7 @@ MsgClient.prototype = {
       self.loginSuccess();
     });
 
-    //ロビーに入れなかった場合
+    //authentication failed
     socket.on("password denied", function(){
       console.log("failed to log in");
       self.loginFailed(error);
@@ -91,12 +87,12 @@ MsgClient.prototype = {
 
 
 
-    //ロビーメッセージを受け取ったら msg={text: message text, username: user name}
+    //broadcast message
     socket.on("push msg", function(msg) {
       self.messageRecieved(msg);
     });
 
-    //to avoid overloading event
+    //avoid overloading event
     this._eventDefined = true;
     return socket;
   },
@@ -116,9 +112,6 @@ MsgClient.prototype = {
   }
 };
 
-
 //empty method
 var fnEmpty = function(){
-  var callerName = fnEmpty.caller != null ? fnEmpty.caller.name : "root";
-  //console.log("unhandled event raised, caller name:" + callerName); 
 };
